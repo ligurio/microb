@@ -1,18 +1,19 @@
-#include "benchmark/benchmark.h"
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/types.h>
+#include <stdio.h>
 #include <ifaddrs.h>
 #include <unistd.h>
 
-void getifaddrs_perf()
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+
+int getifaddrs_perf()
 {
         struct ifaddrs *ifaddr, *ifa;
         int n;
 
         if (getifaddrs(&ifaddr) == -1) {
                 perror("getifaddrs");
-                exit(EXIT_FAILURE);
+                return 1;
         }
 
         /* touch the data */
@@ -24,12 +25,12 @@ void getifaddrs_perf()
         }
 
         freeifaddrs(ifaddr);
+
+	return 0;
 }
 
-void BM_getifaddrs(benchmark::State& state) {
-	  while (state.KeepRunning()) getifaddrs_perf();
+int main(void)
+{
+	getifaddrs_perf();
+	return 0;
 }
-
-BENCHMARK(BM_getifaddrs);
-
-BENCHMARK_MAIN()

@@ -1,5 +1,6 @@
-#include "benchmark/benchmark.h"
+#ifndef __OpenBSD__
 #include <sys/io.h>
+#endif
 #include <stdio.h>
 #include <unistd.h>
 #include <setjmp.h>
@@ -7,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* syscall. This test measures round-trip transitions from userlevel to
+/* This test measures round-trip transitions from userlevel to
  * supervisor-level via the syscall and sysret instructions.  The software VMM
  * introduces a layer of code and an extra privilege transition, requiring
  * approximately 2000 more cycles than a native system call. In the hardware
@@ -19,13 +20,7 @@ void syscall_perf() {
 
 }
 
-void BM_syscall(benchmark::State& state) {
-	  while (state.KeepRunning()) syscall_perf();
-}
-
-BENCHMARK(BM_syscall);
-
-/* in. We execute an in instruction from port 0x80, the BIOS POST port. Native
+/* We execute an in instruction from port 0x80, the BIOS POST port. Native
  * execution accesses an off-CPU register in the chipset, requiring 3209
  * cycles. The software VMM, on the other hand, translates the in into a short
  * sequence of instructions that interacts with the virtual chipset model.
@@ -39,28 +34,24 @@ void in() {
 
 	#define BASEPORT 0x378 /* lp1 */
 
+#ifndef __OpenBSD__
 	if (ioperm(BASEPORT, 3, 1))
 		perror("ioperm");
+#endif
 
 	/* Set the data signals (D0-7) of the port to all low (0) */
+#ifndef __OpenBSD
 	outb(0, BASEPORT);
 	if (ioperm(BASEPORT, 3, 0))
 		perror("ioperm");
+#endif
+
+#ifdef __OpenBSD__
+	printf("Unsupported");
+#endif
 }
 
-void BM_in(benchmark::State& state) {
-	uid_t uid=getuid(), euid=geteuid();
-	while (state.KeepRunning())
-		if (euid != 0 || uid != 0) {
-			state.SkipWithError("root is required");
-		} else {
-			in();
-		}
-}
-
-BENCHMARK(BM_in);
-
-/* cr8wr. %cr8 is a privileged register that determines which pending
+/* %cr8 is a privileged register that determines which pending
  * interrupts can be delivered. Only %cr8 writes that reduce %cr8 below the
  * priority of the highest pending virtual interrupt cause an exit. Our FrobOS
  * test never takes interrupts so no %cr8 write in the test ever causes an
@@ -71,7 +62,7 @@ BENCHMARK(BM_in);
  */
 
 void cr8wr(void) {
-	
+
 	// https://git.kernel.org/pub/scm/virt/kvm/kvm-unit-tests.git/tree/x86/emulator.c#n177
 /*
         unsigned long src, dst;
@@ -95,14 +86,7 @@ void cr8wr(void) {
 #endif
 }
 
-void BM_cr8wr(benchmark::State& state) {
-	state.SkipWithError("not implemented");
-	// while (state.KeepRunning()) cr8wr();
-}
-
-BENCHMARK(BM_cr8wr);
-
-/* call/ret. BT slows down indirect control flow. We target this overhead by
+/* BT slows down indirect control flow. We target this overhead by
  * repeatedly calling a subroutine. Since the hardware VMM executes calls and
  * returns without modification, the hardware VMM and native both execute the
  * call/return pair in 11 cycles. The software VMM introduces an average
@@ -113,13 +97,7 @@ void callret() {
 	// https://stackoverflow.com/questions/2842751/call-ret-in-x86-assembly-embedded-in-c
 }
 
-void BM_callret(benchmark::State& state) {
-	  while (state.KeepRunning()) callret();
-}
-
-BENCHMARK(BM_callret);
-
-/* pgfault. In both VMMs, the software MMU interposes on both true and hidden
+/* In both VMMs, the software MMU interposes on both true and hidden
  * page faults. This test targets the overheads for true page faults. While
  * both VMM paths are logically similar, the software VMM (3927 cycles)
  * performs much better than the hardware VMM (11242 cycles). This is due
@@ -135,13 +113,7 @@ void pgfault() {
     p[pagesize] = 1; /* Page fault. */
 }
 
-void BM_pgfault(benchmark::State& state) {
-	  while (state.KeepRunning()) pgfault();
-}
-
-BENCHMARK(BM_pgfault);
-
-/* divzero. Division by zero has fault semantics similar to those of page
+/* Division by zero has fault semantics similar to those of page
  * faults, but does not invoke the software MMU. While division by zero is
  * uncommon in guest workloads, we include this nanobenchmark to clarify the
  * pgfault results. It allows us to separate out the virtualization overheads
@@ -176,13 +148,7 @@ void divzero(void)
 }
 
 
-void BM_divzero(benchmark::State& state) {
-	  while (state.KeepRunning()) divzero();
-}
-
-BENCHMARK(BM_divzero);
-
-/* ptemod. Both VMMs use the shadowing technique described in Section 2.4 to
+/* Both VMMs use the shadowing technique described in Section 2.4 to
  * implement guest paging with trace-based coherency. The traces induce
  * significant overheads for PTE writes, causing very high penalties relative
  * to the native single cycle store. The software VMM adaptively discovers the
@@ -196,22 +162,8 @@ BENCHMARK(BM_divzero);
 void ptemod() {
 }
 
-void BM_ptemod(benchmark::State& state) {
-	while (state.KeepRunning()) ptemod();
-}
-
-BENCHMARK(BM_ptemod);
-
 extern __inline__ unsigned long long int rdtsc() {
 	unsigned long long int x;
 	__asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
 	return x;
 }
-
-void BM_rdtsc(benchmark::State& state) {
-	while (state.KeepRunning()) rdtsc();
-}
-
-BENCHMARK(BM_rdtsc);
-
-BENCHMARK_MAIN()

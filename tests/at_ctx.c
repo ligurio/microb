@@ -1,5 +1,5 @@
-#include "benchmark/benchmark.h"
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/syscall.h>
 
 /*
@@ -16,7 +16,7 @@
  * manage coherency of the CPU caches. This metric is performed by creating two
  * processes connected with a bi-directional pipe. A one-byte token is passed
  * alternately between the two processes, causing a context switch to each
- * process to services access to the pipe. 
+ * process to services access to the pipe.
  *
  */
 
@@ -46,16 +46,7 @@ void syscall_perf(void) {
 	}
 }
 
-void BM_syscall_perf(benchmark::State& state) {
-	  while (state.KeepRunning()) {
-		      benchmark::DoNotOptimize(syscall_perf);
-	  }
-}
-
-
-BENCHMARK(BM_syscall_perf);
-
-/* 
+/*
  * futex is the low level Linux-specific primitive used by most threading
  * libraries to implement blocking operations such as waiting on a contended
  * mutexes, semaphores that run out of permits, condition variables and friends.
@@ -75,16 +66,6 @@ void time_ctxswws(void) {
 
 	/* FIXME */
 }
-
-
-void BM_time_ctxswws(benchmark::State& state) {
-	  while (state.KeepRunning()) {
-		      benchmark::DoNotOptimize(time_ctxswws);
-	  }
-}
-
-
-BENCHMARK(BM_time_ctxswws);
 
 void timet_ctxsw(void) {
 
@@ -106,5 +87,3 @@ void timet_ctxsw2(void) {
 
 	/* FIXME */
 }
-
-BENCHMARK_MAIN()

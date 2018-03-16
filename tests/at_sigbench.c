@@ -1,4 +1,3 @@
-#include "benchmark/benchmark.h"
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
@@ -25,12 +24,6 @@ static void sigbench_sigusr1() {
 		perror("SIGUSR1 is not possible");
 }
 
-void BM_sigbench_sigusr1(benchmark::State& state) {
-	  while (state.KeepRunning()) sigbench_sigusr1();
-}
-
-BENCHMARK(BM_sigbench_sigusr1);
-
 static void sigbench_sigign() {
 	pid_t pid;
 
@@ -42,10 +35,7 @@ static void sigbench_sigign() {
 		perror("SIGUSR1 is not possible");
 }
 
-void BM_sigbench_sigign(benchmark::State& state) {
-	  while (state.KeepRunning()) sigbench_sigign();
+int main(void)
+{
+	return 0;
 }
-
-BENCHMARK(BM_sigbench_sigign);
-
-BENCHMARK_MAIN()

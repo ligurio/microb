@@ -1,10 +1,11 @@
-#include "benchmark/benchmark.h"
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
 #include <fcntl.h>
 #include <errno.h>
-#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 
 /*
@@ -92,10 +93,8 @@ void mmap_perf() {
     }
 }
 
-static void BM_mmap(benchmark::State& state) {
-    while (state.KeepRunning()) mmap_perf();
+int main(void)
+{
+	return 0;
+
 }
-
-BENCHMARK_RANGE(BM_mmap, 1, 10 * 1000);
-
-BENCHMARK_MAIN()

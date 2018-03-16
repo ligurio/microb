@@ -1,7 +1,7 @@
-#include "benchmark/benchmark.h"
-
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #define B_SIZE    2048
@@ -47,10 +47,8 @@ void fsync_perf() {
     unlink(filename);
 }
 
-void BM_fsync(benchmark::State& state) {
-	  while (state.KeepRunning()) fsync_perf();
+int main(void)
+{
+    fsync_perf();
+    return 0;
 }
-
-BENCHMARK(BM_fsync);
-
-BENCHMARK_MAIN()
