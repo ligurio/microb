@@ -3,7 +3,7 @@ OBJS = $(SRCS:.c=.o)
 
 CFLAGS = -Os -Wall -Wno-div-by-zero
 LDFLAGS = -static
-LIBS += -lpthread -lrt -lpthread
+LIBS += -lpthread
 
 
 all: microb
