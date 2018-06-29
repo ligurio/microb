@@ -1,0 +1,21 @@
+sudo: required
+language: c
+
+os:
+  - linux
+  - osx
+
+compiler:
+  - clang
+  - gcc
+
+addons:
+  apt:
+    packages:
+    - libxml2-utils
+
+script:
+  - make
+  - make test > results.csv
+  - cat results.csv | csv2junit.py > sample.junit
+  - xmllint --schema junit-schema.xsd sample.junit
