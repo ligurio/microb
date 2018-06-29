@@ -115,7 +115,7 @@ static void *stress(void *arg) {
 }
 
 size_t b_malloc_thread_stress(void *dummy) {
-  struct foo foo[SH_COUNT] = {0};
+  struct foo foo[SH_COUNT] = {{0}};
   pthread_t td1, td2;
   void *res;
 
@@ -127,8 +127,8 @@ size_t b_malloc_thread_stress(void *dummy) {
 }
 
 size_t b_malloc_thread_local(void *dummy) {
-  struct foo foo1[SH_COUNT] = {0};
-  struct foo foo2[SH_COUNT] = {0};
+  struct foo foo1[SH_COUNT] = {{0}};
+  struct foo foo2[SH_COUNT] = {{0}};
   pthread_t td1, td2;
   void *res;
 
