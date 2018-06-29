@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __LINUX__
 #include <sys/io.h>
+#endif
 #include <unistd.h>
 
 /* syscall. This test measures round-trip transitions from userlevel to
@@ -26,6 +28,7 @@ size_t b_syscall() { return 0; }
  * tested system.
  */
 
+#ifdef __LINUX__
 size_t b_in() {
 
 #define BASEPORT 0x378 /* lp1 */
@@ -45,6 +48,7 @@ size_t b_in() {
 
   return 0;
 }
+#endif
 
 /* cr8wr. %cr8 is a privileged register that determines which pending
  * interrupts can be delivered. Only %cr8 writes that reduce %cr8 below the
@@ -104,10 +108,8 @@ size_t b_pgfault() {
 
 jmp_buf fpe;
 
-size_t sigfpe_sigaction(int signal, siginfo_t *si, void *arg) {
+static void sigfpe_sigaction(int signal, siginfo_t *si, void *arg) {
   longjmp(fpe, 1);
-
-  return 0;
 }
 
 size_t b_divzero(void) {
@@ -116,7 +118,7 @@ size_t b_divzero(void) {
 
   memset(&sa, 0, sizeof(struct sigaction));
   sigemptyset(&sa.sa_mask);
-  sa.sa_sigaction = sigfpe_sigaction;
+  sa.sa_sigaction = &sigfpe_sigaction;
   sa.sa_flags = SA_NODEFER;
   sigaction(SIGFPE, &sa, NULL);
 

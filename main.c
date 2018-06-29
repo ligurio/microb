@@ -140,7 +140,11 @@ int gettime(void) {
 void print_stats(struct timespec tv0, const char *label) {
   struct timespec tv;
 
+#ifdef __LINUX__
   clock_gettime(CLOCK_MONOTONIC_RAW, &tv);
+#else
+  clock_gettime(CLOCK_MONOTONIC, &tv);
+#endif
   tv.tv_sec -= tv0.tv_sec;
   if ((tv.tv_nsec -= tv0.tv_nsec) < 0) {
     tv.tv_nsec += 1000000000;
@@ -159,7 +163,11 @@ int run_bench(const char *label, size_t (*bench)(void *), void *params) {
     return status;
   }
 
+#ifdef __LINUX__
   clock_gettime(CLOCK_MONOTONIC_RAW, &tv0);
+#else
+  clock_gettime(CLOCK_MONOTONIC, &tv0);
+#endif
   bench(params);
   print_stats(tv0, label);
   exit(0);
@@ -188,7 +196,9 @@ int main() {
   RUN(b_sigusr1, 0);
   RUN(b_sigignore, 0);
   RUN(b_syscall, 0);
+#ifdef __LINUX__
   RUN(b_in, 0);
+#endif
   RUN(b_cr8wr, 0);
   RUN(b_callret, 0);
   RUN(b_pgfault, 0);

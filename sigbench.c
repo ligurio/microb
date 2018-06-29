@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
-int sigusr1_sigaction(int signal, siginfo_t *si, void *arg) { return 0; }
+static void sigusr1_sigaction(int signal, siginfo_t *si, void *arg) { }
 
 size_t b_sigusr1() {
   pid_t pid;
@@ -13,7 +13,7 @@ size_t b_sigusr1() {
 
   memset(&sa, 0, sizeof(struct sigaction));
   sigemptyset(&sa.sa_mask);
-  sa.sa_sigaction = sigusr1_sigaction;
+  sa.sa_sigaction = &sigusr1_sigaction;
   sa.sa_flags = SA_NODEFER;
   sigaction(SIGUSR1, &sa, NULL);
 
