@@ -1,12 +1,12 @@
 #include <errno.h>
 #include <fcntl.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <time.h>
+#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
 /*
  *  It is important for databases and large web and proxy servers to map files

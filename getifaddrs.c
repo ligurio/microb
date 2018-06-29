@@ -1,9 +1,9 @@
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 size_t b_getifaddrs() {
   struct ifaddrs *ifaddr, *ifa;
