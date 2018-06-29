@@ -68,7 +68,8 @@ if __name__ == "__main__":
     set_cpu_affinity([0])
 
     print("-" * 60)
-    print("{0:<14} {1:>10} {2:>14}".format("Clock source", "Time", "Diff (sec)"))
+    print("{0:<14} {1:>10} {2:>14}".format(
+        "Clock source", "Time", "Diff (sec)"))
     print("-" * 60)
     current = time.monotonic()
     while True:
